@@ -1,0 +1,81 @@
+---
+title: "Map Visualization"
+---
+
+```{r}
+library(tigris)
+library(dplyr)
+library(leaflet)
+library(sp)
+library(ggmap)
+library(maptools)
+library(broom)
+library(httr)
+library(rgdal)
+```
+```{r}
+register_google(key = "AIzaSyCVWbGYizBSs2nZktIsO-GvOM3eaWSaizg", write= TRUE)
+map_Manhattan_st <- get_map("New York",
+                            zoom = 12,
+                            source = "stamen",
+                            maptype = "toner-background")
+ggmap(map_Manhattan_st)
+```
+```{r}
+data1 <- NYPD_Complaint_Data_Current_Year_To_Date_
+colnames(data1)
+data2 <- data1[,c(22,33,34)]
+colnames(data2)
+data3 <- na.omit(data2)
+data3.df <- as.data.frame(data3)
+data3.df$RPT_DT <- paste(substr(data3.df$RPT_DT , 1, 3),substr(data3.df$RPT_DT , 7, 10))
+```
+```{r}
+g <- ggmap(map_Manhattan_st) + theme_map()
+g + geom_point(data=data3.df, aes(x=Longitude,y=Latitude),
+               size=0.3, alpha=0.3, color="red")
+```
+```{r}
+g + stat_density2d(data = data3.df, geom = "polygon",
+                              aes(x = Longitude, y = Latitude, fill=..level..,alpha=..level..)) + 
+  scale_fill_gradient(low = "yellow", high = "red") + theme_map()
+
+```
+```{r}
+#NYPD HATE CRIMES
+data_hate <- Hate_Crimes
+county <- data_hate$County
+
+lat <- NA
+lat <- ifelse(county=="BRONX", 40.844782, lat)
+lat <- ifelse(county=="RICHMOND", 40.5834379, lat)
+lat <- ifelse(county=="NEW YORK", 40.730610, lat)
+lat <- ifelse(county=="QUEENS", 40.742054, lat)
+lat <- ifelse(county=="KINGS", 40.819824, lat)
+
+long <- NA
+long <- ifelse(county=="BRONX", -73.864827, long)
+long <- ifelse(county=="RICHMOND", -74.1495875, long)
+long <- ifelse(county=="NEW YORK", -73.935242, long)
+long <- ifelse(county=="QUEENS", -73.769417, long)
+long <- ifelse(county=="KINGS", -73.735130, long)
+
+data_hate$lat <- lat
+data_hate$long <- long
+
+# Plot
+m <- leaflet(data_hate) %>% 
+  addTiles() # add the background map 
+
+library(RColorBrewer)
+pal = colorFactor("Set1", domain = data_hate$County) # Grab a palette
+color_offsel1 = pal(data_hate$County)
+mclust <- m %>% addCircleMarkers(color = color_offsel1, 
+                                 popup = content,
+                                 clusterOptions = markerClusterOptions()) %>%
+  addLegend(pal = pal, values = ~data_hate$County, title = "Counties")
+mclust
+
+```
+
+
