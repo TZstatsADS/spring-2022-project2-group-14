@@ -1,74 +1,58 @@
+library(shinydashboard)
 
-if (!require("shiny")) {
-  install.packages("shiny")
-  library(shiny)
-}
-if (!require("shinyWidgets")) {
-  install.packages("shinyWidgets")
-  library(shinyWidgets)
-}
-if (!require("shinythemes")) {
-  install.packages("shinythemes")
-  library(shinythemes)
-}
-if (!require("leaflet")) {
-  install.packages("leaflet")
-  library(leaflet)
-}
-if (!require("leaflet.extras")) {
-  install.packages("leaflet.extras")
-  library(leaflet.extras)
-}
+ui <- dashboardPage(skin = "purple",
+                    title="Covid_19 and Crime in New York City",
+                    dashboardHeader(title=span("Covid_19 and Crime in NYC",style="font-size: 16px")),
 
-# Define UI for application that draws a histogram
-shinyUI(
-    navbarPage(strong("Citi Bike Study",style="color: white;"), 
-               theme=shinytheme("cerulean"), # select your themes https://rstudio.github.io/shinythemes/
-#------------------------------- tab panel - Maps ---------------------------------
-                tabPanel("Maps",
-                         icon = icon("map-marker-alt"), #choose the icon for
-                         div(class = 'outer',
-                        # side by side plots
-                        fluidRow(
-                                splitLayout(cellWidths = c("50%", "50%"), 
-                                             leafletOutput("left_map",width="100%",height=1200),
-                                             leafletOutput("right_map",width="100%",height=1200))),
-                        #control panel on the left
-                        absolutePanel(id = "control", class = "panel panel-default", fixed = TRUE, draggable = TRUE,
-                                      top = 200, left = 50, right = "auto", bottom = "auto", width = 250, height = "auto",
-                                      tags$h4('Citi Bike Activity Comparison'), 
-                                      tags$br(),
-                                      tags$h5('Pre-covid(Left) Right(Right)'), 
-                                      prettyRadioButtons(
-                                                      inputId = "adjust_score",
-                                                      label = "Score List:", 
-                                                      choices = c("start_cnt", 
-                                                                  "end_cnt", 
-                                                                  "day_diff_absolute",
-                                                                  "day_diff_percentage"),
-                                                      inline = TRUE, 
-                                                      status = "danger",
-                                                      fill = TRUE
-                                                        ),
-                                      awesomeRadio("adjust_time", 
-                                                   label="Time",
-                                                    choices =c("Overall",
-                                                               "Weekday", 
-                                                               "Weekend"), 
-                                                    selected = "Overall",
-                                                    status = "warning"),
-                                      # selectInput('adjust_weather',
-                                      #             label = 'Adjust for Weather',
-                                      #             choices = c('Yes','No'), 
-                                      #             selected = 'Yes'
-                                      #             ),
-                                      style = "opacity: 0.80"
-                                      
-                                ), #Panel Control - Closing
-                            ) #Maps - Div closing
-                        ) #tabPanel maps closing
-   
+  dashboardSidebar(   sidebarMenu(
+    menuItem("Home", tabName = "home", icon = icon("home")),
+    menuItem("Covid-19 Cases & Hate Crimes", tabName = "c_19_hc")
+  )),
+  
+  
+  ## Body content
+  dashboardBody(
+    tabItems(
 
-
-    ) #navbarPage closing  
-) #Shiny UI closing    
+      # Home tab content
+      tabItem(tabName = "home",
+              h2("How Covid_19 impacted crime in New York City"),
+              h4("By Joel Mugyenyi, Rishav Agarwal, Shanyue Zeng, Lichun He"),
+      ),
+      
+      #------------------New Business----------------------------
+      tabItem(tabName = "c_19_hc", fluidPage(
+        
+        # App title ----
+        titlePanel("Covid-19 Cases"),
+        
+        # Sidebar layout with input and output definitions ----
+        sidebarLayout(
+          
+          # Sidebar panel for inputs ----
+          sidebarPanel(
+            
+            # Input: Select for the borough ----
+            selectInput(inputId = "motive",
+                        label = "Select a bias motive:",
+                        choices = c("ANTI-JEWISH", "ANTI-ASIAN", "ANTI-MALE HOMOSEXUAL (GAY)",
+                                    "ANTI-BLACK","ANTI-WHITE","ANTI-TRANSGENDER","ANTI-MUSLIM"))
+            
+          ),
+          
+          # Main panel for displaying outputs ----
+          mainPanel(
+            
+            # Output: tsPlot on borough ----
+            plotOutput(outputId = "tsPlot0")
+            
+          )
+        )
+      )
+      )
+      
+      
+      
+    )
+  )
+)

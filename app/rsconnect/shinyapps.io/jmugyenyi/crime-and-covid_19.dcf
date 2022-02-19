@@ -1,0 +1,14 @@
+name: crime-and-covid_19
+title: crime-and-covid_19
+username:
+account: jmugyenyi
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5688728
+bundleId: 5596140
+url: https://jmugyenyi.shinyapps.io/crime-and-covid_19/
+when: 1645233951.05677
+lastSyncTime: 1645233951.05679
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .ipynb_checkpoints/Data_exploration-checkpoint.ipynb|Data_exploration.ipynb

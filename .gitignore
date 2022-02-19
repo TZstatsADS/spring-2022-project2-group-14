@@ -1,0 +1,6 @@
+.DS_Store
+app/.ipynb_checkpoints/
+app/Data_exploration.ipynb
+data/.DS_Store
+data/COVID-19_Daily_Counts_of_Cases__Hospitalizations__and_Deaths.csv
+data/NYPD_Hate_Crimes.csv
