@@ -6,7 +6,8 @@ ui <- dashboardPage(skin = "purple",
 
   dashboardSidebar(   sidebarMenu(
     menuItem("Home", tabName = "home", icon = icon("home")),
-    menuItem("Covid-19 Cases & Hate Crimes", tabName = "c_19_hc")
+    menuItem("Covid-19 Cases & Hate Crimes", tabName = "c_19_hc"),
+    menuItem("Map", tabName = "map")
   )),
   
   
@@ -20,11 +21,11 @@ ui <- dashboardPage(skin = "purple",
               h4("By Joel Mugyenyi, Rishav Agarwal, Shanyue Zeng, Lichun He"),
       ),
       
-      #------------------New Business----------------------------
+      #------------------Covid & Crime----------------------------
       tabItem(tabName = "c_19_hc", fluidPage(
         
         # App title ----
-        titlePanel("Covid-19 Cases"),
+        titlePanel("Covid-19 & Hate Crime"),
         
         # Sidebar layout with input and output definitions ----
         sidebarLayout(
@@ -32,7 +33,7 @@ ui <- dashboardPage(skin = "purple",
           # Sidebar panel for inputs ----
           sidebarPanel(
             
-            # Input: Select for the borough ----
+            # Input: Select motive ----
             selectInput(inputId = "motive",
                         label = "Select a bias motive:",
                         choices = c("ANTI-JEWISH", "ANTI-ASIAN", "ANTI-MALE HOMOSEXUAL (GAY)",
@@ -43,15 +44,44 @@ ui <- dashboardPage(skin = "purple",
           # Main panel for displaying outputs ----
           mainPanel(
             
-            # Output: tsPlot on borough ----
+            # Output: tsPlot ----
             plotOutput(outputId = "tsPlot0")
             
           )
         )
       )
+      
+      ), 
+
+      #------------------MAP----------------------------
+      tabItem(tabName = "map", fluidPage(
+
+        # App title ----
+        titlePanel("Hate Crime Count by Borough"),
+
+        # Sidebar layout with input and output definitions ----
+        sidebarLayout(
+
+          # Sidebar panel for inputs ----
+          sidebarPanel(
+
+            # Input: Select ----
+            selectInput(inputId = "Period",
+                        label = "Select a Time Period:",
+                        choices = c("Pre First Wave", "Post First Wave", "All Time"))
+
+          ),
+
+          # Main panel for displaying outputs ----
+          mainPanel(
+
+            # Output: tmPlot of boroughs ----
+            tmapOutput("my_tmap")
+
+          )
+        )
       )
-      
-      
+      )
       
     )
   )
