@@ -1,4 +1,4 @@
-install.packages("shinydashboard")##### Install Required Packages
+##### Install Required Packages
 
 if (!require("ggplot2")) {
   install.packages("ggplot2")
