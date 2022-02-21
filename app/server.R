@@ -69,7 +69,7 @@ server <- function(input, output) {
     output$my_tmap = renderTmap({
       data3 = hc_wave()
       tmap_mode("view")
-      
+
       tm_shape(data3) + tm_polygons("count", legend.title = "Hate Crime Count")
     })
 }

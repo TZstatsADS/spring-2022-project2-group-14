@@ -45,7 +45,7 @@ if (!require("tmap")) {
   library(tmap)
 }
 
-data_source = 'local'
+data_source = 'remote'
 
 #### Deactivate googlesheets authentication 
 googlesheets4::gs4_deauth()
