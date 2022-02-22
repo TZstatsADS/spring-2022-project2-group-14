@@ -19,7 +19,7 @@ ui <- dashboardPage(skin = "purple",
                         # Home tab content
                         tabItem(tabName = "home",
                                 h2("How Covid_19 impacted crime in New York City"),
-                                h4("By Joel Mugyenyi, Rishav Agarwal, Shanyue Zeng, Lichun He"),
+                                h4("By Joel Mugyenyi, Rishav Agarwal, Shanyue Zeng, Lichun He, Ananya Iyer"),
                         ),
                         
                         #------------------Covid & Crime----------------------------
@@ -35,23 +35,24 @@ ui <- dashboardPage(skin = "purple",
                             sidebarPanel(
                               
                               # Input: Select motive ----
-                              dateInput("selected_dateS", "Time period: Start", Sys.Date()-20, min= 2019-02-01, max = 2021-12-31),
-                              dateInput("selected_dateE", "Time period: End", Sys.Date(), min= 2019-02-01, max = 2021-12-31),
+                              dateInput("selected_dateS", "Time period: Start", Sys.Date()-960),
+                              dateInput("selected_dateE", "Time period: End", Sys.Date()),
                               hr(), 
                               
                               radioButtons("selected_county", "County:", 
-                                           c("All" = TRUE, "BRONX" = FALSE, 'BROOKLYN'= FALSE, 
-                                             'MANHATTAN'= FALSE, 'QUEENS'= FALSE, 'STATEN ISLAND' = FALSE)),
-                             
+                                           c("All" = "All", "BRONX" = "BRONX", 'BROOKLYN'= 'BROOKLYN', 
+                                             'MANHATTAN'= 'MANHATTAN', 'QUEENS'= 'QUEENS', 'STATEN ISLAND' = 'STATEN ISLAND')),
+                              hr(),
                               
                               radioButtons("selected_topic", "Topic:", 
-                                           c("Both" = TRUE, "Hate Crime" = FALSE, "Covid-19" = FALSE)),
+                                           c("Both" = "Both", "Hate Crime" = "Hate Crime", "Covid-19" = "Covid-19")),
                               hr(), 
                               
-                              radioButtons("selected_motive", "Hate Crime Motive:", 
-                                           c("All" = TRUE, "ANTI-JEWISH" = FALSE, "ANTI-ASIAN" = FALSE, "ANTI-BLACK" = FALSE, 
-                                             "ANTI-MALE HOMOSEXUAL (GAY)" = FALSE, "ANTI-WHITE" = FALSE, "ANTI-MUSLIM" = FALSE,
-                                             "ANTI-TRANSGENDER" = FALSE)),
+                              radioButtons("selected_motive", "Hate Crime Motive:",
+                                           c("All" = "All", "ANTI-JEWISH" = "ANTI-JEWISH", "ANTI-ASIAN" = "ANTI-ASIAN",
+                                             "ANTI-BLACK" = "ANTI-BLACK", "ANTI-MALE HOMOSEXUAL (GAY)" = "ANTI-MALE HOMOSEXUAL (GAY)",
+                                             "ANTI-WHITE" = "ANTI-WHITE" , "ANTI-MUSLIM" = "ANTI-MUSLIM",
+                                             "ANTI-TRANSGENDER" = "ANTI-TRANSGENDER")),
                               hr()
                               
                             ),
