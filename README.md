@@ -20,7 +20,7 @@ The **learning goals** for this project is:
 Term: Spring 2022
 
 + Team #14
-+ **Projec title**: + Team members
++ **Team Members**:
 	+ Team Member 1: Ananya Iyer (ai2446)
 	+ Team Member 2: Joel Mugyenyi (jm5352)
 	+ Team Member 3: Lichun He (lh3094)
