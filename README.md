@@ -27,7 +27,7 @@ Term: Spring 2022
 	+ Team Member 4: Rishav Agarwal (ra3141)
 	+ Team Member 5: Shanyue Zeng (sz2896)
 
-+ **Project summary**: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
++ **Project summary**: This project explorers how crime changed in New York City in response to the Covid 19 Pandemic. We explore hate crime and domestic violences rates in the city pre and since the pandemic begun as well as how victim categories as defined by the NYPD were targeted pre covid and since the pandemic begun.
 
 + **Contribution statement**: Joel is the presenter for the group. Ananya and Lichun worked on creating the Shiny App dashboard, and deploying the application. Joel, Rishav and Shanyue analyzed the data to create interactive visualization in the form of line chart and map demonstrations. As a whole, all team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
 
