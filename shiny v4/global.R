@@ -2,7 +2,7 @@
 packages.used=c("shiny", "ggplot2", "repr", "dplyr", "plotly", 
                 "gtable", "leaflet", "readr", "grid", "googlesheets4",
                 "tigris", "sp", "ggmap", "maptools", "broom",
-                "httr", "rgdal", "RColorBrewer")
+                "httr", "rgdal", "RColorBrewer", "knitr", "lubridate")
 
 # check packages that need to be installed.
 packages.needed=setdiff(packages.used, 
@@ -26,10 +26,12 @@ library(tigris)
 library(sp)
 library(ggmap)
 library(maptools)
+library(lubridate)
 library(broom)
 library(httr)
 library(rgdal)
 library(RColorBrewer)
+library(knitr)
 
 data_source = 'local'
 
@@ -74,8 +76,8 @@ if (data_source=='remote')
 {
   stop("Select Data Source: local or Remote")
 }
-covid_19$DATE_OF_INTEREST <- as.Date(covid_19$DATE_OF_INTEREST, format = "%Y/%m/%d")
-covid_19 <- covid_19 %>% filter(DATE_OF_INTEREST >= "2020-02-29" & DATE_OF_INTEREST <= "2021-12-29")
+covid_19$DATE_OF_INTEREST <- as.Date(covid_19$DATE_OF_INTEREST, format = "%m/%d/%Y")
+
 
 ## Import Hate Crime dataset
 if (data_source=='remote')
@@ -93,9 +95,8 @@ if (data_source=='remote')
   stop("Select Data Source: local or Remote")
 }
 
-Hate_Crimes$`Record Create Date` <- as.Date(Hate_Crimes$`Record Create Date`, format = "%Y/%m/%d")
-Hate_Crimes <- Hate_Crimes %>% filter(`Record Create Date` >= "2020-02-29" & `Record Create Date` <= "2021-12-29")
-Hate_Crimes["Borough Name"] = apply(Hate_Crimes["Patrol Borough Name"],1, pick_borough)
+Hate_Crimes$`Record Create Date` <- as.Date(Hate_Crimes$`Record Create Date`, format = "%m/%d/%Y")
+Hate_Crimes["Borough Name"] = apply(Hate_Crimes["Patrol Borough Name"], 1, pick_borough)
 names(Hate_Crimes)[names(Hate_Crimes) == 'Borough Name'] <- 'boro_name'
 hc_pre_covid = Hate_Crimes%>%filter(`Record Create Date` <= "2020-02-02") # pre first wave
 hc_since_covid = Hate_Crimes%>%filter(`Record Create Date` > "2020-02-02") # since first wave
@@ -121,7 +122,7 @@ hc_since_covid_summarized = hc_since_covid %>%
   summarise(count = length(`Full Complaint ID`)) %>%
   arrange(desc(count))
 
-dir_path = '/Users/helichun/Desktop/shiny v3/data/Borough Boundaries/'
+dir_path = '/Users/helichun/Desktop/shiny v4/data/Borough Boundaries/'
 gis_boundaries = 'geo_export_1866a9a8-81ce-4f8a-ba22-a52396bd4885.shp'
 file_path = paste(dir_path, gis_boundaries, sep="")
 aoi_boundary_NYC <- st_read(file_path)
@@ -129,48 +130,44 @@ aoi_boundary_NYC$boro_name = toupper(aoi_boundary_NYC$boro_name)
 
 # merge hate crime df and gis df
 
-hc_gis = merge(x = aoi_boundary_NYC, y = hc_all_time_summarized, by = "boro_name", all.x = TRUE)
+hc_gis = merge(x = aoi_boundary_NYC, y = hc_all_time_summarized, by = 'boro_name', all.x = TRUE)
 hc_pre_covid_gis = merge(x = aoi_boundary_NYC, y = hc_pre_covid_summarized, by = "boro_name", all.x = TRUE)
 hc_since_covid_gis = merge(x = aoi_boundary_NYC, y = hc_since_covid_summarized, by = "boro_name", all.x = TRUE)
 
 #-------------------------------------------------------------------------------
 # Line chart 
 #-------------------------------------------------------------------------------
-get_line_data <- function(selected_dateS, selected_dateE,
-                          selected_county, selected_motive){
+plot_line <- function(selected_dateS, selected_dateE,
+                      selected_county, selected_motive, selected_topic){
+  
   Hate_Crimes_line <- Hate_Crimes %>%
-    filter('Record Create Date' >= selected_dateS & 'Record Create Date' <= selected_dateE)
+    filter(`Record Create Date` >= as.Date(selected_dateS) & `Record Create Date` <= as.Date(selected_dateE))
   if (selected_county != "All"){
-    Hate_Crimes_line <- Hate_Crimes_line %>% filter(boro_name == selected_county)
-  }
+    Hate_Crimes_line <- Hate_Crimes_line %>% filter(`boro_name` == selected_county)}
   if (selected_motive != "All"){
-    Hate_Crimes_line <- Hate_Crimes_line %>% filter('Bias Motive Description' == selected_motive)
-  }
+    Hate_Crimes_line <- Hate_Crimes_line %>% filter(`Bias Motive Description` == selected_motive)}
   
   covid_19_line <- covid_19 %>%
-    filter(DATE_OF_INTEREST >= selected_dateS & DATE_OF_INTEREST <= selected_dateE)
+    filter(DATE_OF_INTEREST >= as.Date(selected_dateS) & DATE_OF_INTEREST <= as.Date(selected_dateE))
   if (selected_county == "All"){
-    covid_19_line <- covid_19_line %>% dplyr::select(DATE_OF_INTEREST:all_death_count_7day_avg)
-  }
+    covid_19_line <- covid_19_line %>% dplyr::select(DATE_OF_INTEREST:all_death_count_7day_avg)}
   if (selected_county == "BRONX") {
-    covid_19_line <- covid_19_line %>% dplyr::select(DATE_OF_INTEREST, BX_CASE_COUNT:bx_all_death_count_7day_avg)
-  }
+    covid_19_line <- covid_19_line %>% 
+      dplyr::select(DATE_OF_INTEREST, BX_CASE_COUNT:bx_all_death_count_7day_avg)%>%
+      rename(CASE_COUNT = `BX_CASE_COUNT`)}
   if (selected_county == "QUEENS") {
-    covid_19_line <- covid_19_line %>% dplyr::select(DATE_OF_INTEREST, QN_CASE_COUNT:qn_all_death_count_7day_avg)
-  }
+    covid_19_line <- covid_19_line %>% dplyr::select(DATE_OF_INTEREST, QN_CASE_COUNT:qn_all_death_count_7day_avg)%>%
+      rename(CASE_COUNT = `QN_CASE_COUNT`)}
   if (selected_county == "MANHATTAN") {
-    covid_19_line <- covid_19_line %>% dplyr::select(DATE_OF_INTEREST, MN_CASE_COUNT:mn_all_death_count_7day_avg)
-  }
+    covid_19_line <- covid_19_line %>% dplyr::select(DATE_OF_INTEREST, MN_CASE_COUNT:mn_all_death_count_7day_avg)%>%
+      rename(CASE_COUNT = `MN_CASE_COUNT`)}
   if (selected_county == "STATEN ISLAND") {
-    covid_19_line <- covid_19_line %>% dplyr::select(DATE_OF_INTEREST, SI_CASE_COUNT:si_all_death_count_7day_avg)
-  }
+    covid_19_line <- covid_19_line %>% dplyr::select(DATE_OF_INTEREST, SI_CASE_COUNT:si_all_death_count_7day_avg)%>%
+      rename(CASE_COUNT = `SI_CASE_COUNT`)}
   if (selected_county == "BROOKLYN") {
-    covid_19_line <- covid_19_line %>% dplyr::select(DATE_OF_INTEREST, BK_CASE_COUNT:bk_all_death_count_7day_avg)
-  }
-}
-
-
-plot_line <- function(df, selected_topic){
+    covid_19_line <- covid_19_line %>% dplyr::select(DATE_OF_INTEREST, BK_CASE_COUNT:bk_all_death_count_7day_avg)%>%
+      rename(CASE_COUNT = `BK_CASE_COUNT`)}
+  
   # Hate Crime
   data = Hate_Crimes_line %>% 
     dplyr::select(`Full Complaint ID`, `Record Create Date`)  %>%
@@ -181,13 +178,13 @@ plot_line <- function(df, selected_topic){
     ggplot(aes(as.Date(date), n)) +
     geom_line() +
     geom_point() +
-    geom_vline(xintercept = "2020-02-02") + 
+    geom_vline(xintercept = as.Date("2020-02-01"), col='red') + 
     xlab("Date") +
     ylab("Cases") +
     labs(title="Crime Cases in This Time Period") +
     theme(plot.title=element_text(size=20, face="bold", hjust=0.5, lineheight=1.2)) +
     theme_bw()
-  
+  p1 <- ggplotly(h1)   
   
   # Covid19
   data2 <- covid_19_line %>%
@@ -201,20 +198,19 @@ plot_line <- function(df, selected_topic){
     ggplot(aes(as.Date(date), n)) +
     geom_line() +
     geom_point() +
-    geom_vline(xintercept = "2020-02-02") + 
+    geom_vline(xintercept = as.Date("2020-02-01"), col='red') + 
     xlab("Date") +
     ylab("Cases") +
     labs(title="COVID Cases in This Time Period") +
     theme(plot.title=element_text(size=20, face="bold", hjust=0.5, lineheight=1.2)) +
     theme_bw()
-  
+  p2 <- ggplotly(c1)   
   
   # linechart function
   linechart <- function(data1, data2){
-    
     p <- ggplot(data1,aes(x=DATE_OF_INTEREST,y=CASE_COUNT))+
       geom_line(color="blue") +
-      geom_vline(xintercept = "2020-02-02") + 
+      geom_vline(xintercept = as.Date("2020-02-01"), col='red') + 
       xlab("Date") +
       ylab("COVID Cases Count") +
       theme_bw()
@@ -268,7 +264,7 @@ plot_line <- function(df, selected_topic){
   
   # Use function
   hc_b <- Hate_Crimes_line %>%
-    select(`Record Create Date`, `Bias Motive Description`, `Full Complaint ID`) %>%
+    dplyr::select(`Record Create Date`, `Bias Motive Description`, `Full Complaint ID`) %>%
     group_by(`Record Create Date`, `Bias Motive Description`) %>%
     summarise(count = length(`Full Complaint ID`)) %>%
     arrange(desc(count))
@@ -276,8 +272,8 @@ plot_line <- function(df, selected_topic){
   if (selected_topic == "Both"){
     linechart(covid_19_line, hc_b)
   } else if (selected_topic == "Hate Crime"){
-    plotly_build(h1)
-  } else {plotly_build(c1)}
+    p1
+  } else {p2}
   
 }
 
@@ -292,13 +288,12 @@ plot_line <- function(df, selected_topic){
     dplyr::select(`Bias Motive Description`, `Full Complaint ID`) %>%
     group_by(`Bias Motive Description`) %>%
     summarise(cases = length(`Full Complaint ID`))
-  kable(tab1, caption = "Hate crime cases before the Covid-19")
+ 
   
   tab2 <- hc_since_covid %>%
     dplyr::select(`Bias Motive Description`, `Full Complaint ID`) %>%
     group_by(`Bias Motive Description`) %>%
     summarise(cases = length(`Full Complaint ID`))
-  kable(tab2, caption = "Hate crime cases during the Covid-19")
   
 
 
