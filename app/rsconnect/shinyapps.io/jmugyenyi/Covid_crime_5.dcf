@@ -5,10 +5,10 @@ account: jmugyenyi
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5701065
-bundleId: 5602430
+bundleId: 5606793
 url: https://jmugyenyi.shinyapps.io/Covid_crime_5/
-when: 1645457955.6306
-lastSyncTime: 1645457955.63062
+when: 1645559129.01249
+lastSyncTime: 1645559129.01253
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: .ipynb_checkpoints/Data_exploration-checkpoint.ipynb|README.md
+ignoredFiles: README.md

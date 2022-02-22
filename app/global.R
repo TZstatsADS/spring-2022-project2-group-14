@@ -149,7 +149,7 @@ hc_since_covid_summarized = hc_since_covid %>%
   arrange(desc(count))
 
 # Import NYC adminstrative boundaries
-dir_path = '../data/Borough Boundaries/'
+dir_path = 'www/Borough Boundaries/'
 gis_boundaries = 'geo_export_1866a9a8-81ce-4f8a-ba22-a52396bd4885.shp'
 file_path = paste(dir_path, gis_boundaries, sep="")
 aoi_boundary_NYC <- st_read(file_path)
