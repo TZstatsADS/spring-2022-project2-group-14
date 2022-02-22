@@ -44,6 +44,10 @@ if (!require("tmap")) {
   install.packages("tmap")
   library(tmap)
 }
+if (!require("RcppRoll")) {
+  install.packages("RcppRoll")
+  library(RcppRoll)
+}
 
 data_source = 'remote'
 
@@ -89,6 +93,10 @@ if (data_source=='remote')
   stop("Select Data Source: local or Remote")
 }
 covid_19$DATE_OF_INTEREST <- as.Date(covid_19$DATE_OF_INTEREST, format = "%m/%d/%Y")
+
+COVID_Whole_Cases <- covid_19 %>%
+  select(DATE_OF_INTEREST, CASE_COUNT, HOSPITALIZED_COUNT, DEATH_COUNT, CASE_COUNT_7DAY_AVG) %>%
+  filter(DATE_OF_INTEREST >= "2020-02-29" & DATE_OF_INTEREST <= "2021-12-29")
 
 ## Import Hate Crime dataset
 
@@ -140,76 +148,179 @@ hc_since_covid_summarized = hc_since_covid %>%
   summarise(count = length(`Full Complaint ID`)) %>%
   arrange(desc(count))
 
+# Import NYC adminstrative boundaries
 dir_path = '../data/Borough Boundaries/'
 gis_boundaries = 'geo_export_1866a9a8-81ce-4f8a-ba22-a52396bd4885.shp'
 file_path = paste(dir_path, gis_boundaries, sep="")
 aoi_boundary_NYC <- st_read(file_path)
 aoi_boundary_NYC$boro_name = toupper(aoi_boundary_NYC$boro_name)
 
-# merge hate crime df and gis df
+## Import domestic violence dataset
 
-hc_gis = merge(x = aoi_boundary_NYC, y = hc_all_time_summarized, by = "boro_name", all.x = TRUE)
-hc_pre_covid_gis = merge(x = aoi_boundary_NYC, y = hc_pre_covid_summarized, by = "boro_name", all.x = TRUE)
-hc_since_covid_gis = merge(x = aoi_boundary_NYC, y = hc_since_covid_summarized, by = "boro_name", all.x = TRUE)
+if (data_source=='remote')
+{
+  domestic_link <- 'https://docs.google.com/spreadsheets/d/1jAHX4jW4H6LxqCZCtpfJKqqu-oCJe12S8c3JNJGTYqc/edit?usp=sharing'
+  domestic_V <- read_sheet(domestic_link)
+}else if (data_source=='local')
+{
+  dir_path = '../data/'
+  domestic_file ='ENDGBV_Social_Media_Outreach__Paid_Advertising__and_the_NYC_HOPE_Resource_Directory_during_COVID-19.csv'
+  domestic_file_path = paste(dir_path, domestic_file, sep="")
+  domestic_V <- read.csv(domestic_file_path, check.names=FALSE)
+}else
+{
+  stop("Select Data Source: local or Remote")
+}
 
+domestic_V$Date =  as.Date(domestic_V$Date, format = "%m/%d/%Y")
+domestic_V$d7_rollavg = roll_mean(domestic_V$Visits, n = 7, align = "right", fill = NA)
 
-# Linechart of hate crime and covid cases
-linechart <- function(data1, data2){
+## Import crime victims dataset
+
+if (data_source=='local')
+{
+  vic_link <- 'https://docs.google.com/spreadsheets/d/1gjSRHR-p2wYBwAXKx2JiAYWL5KKEdt-l4UtZ4CBf6Bg/edit?usp=sharing'
+  crime_vic <- read_sheet(vic_link)
+}else if (data_source=='remote')
+{
+  dir_path = '/Users/joelmugyenyi/Desktop/Classes_Spring_22/APPLIED_DATA_SCIENCE/projects/project2/datasets/crime_complaints/'
+  vic_file ='VIC_SEX_M.csv'
+  vic_file_path = paste(dir_path, vic_file, sep="")
+  crime_vic_M <- read.csv(vic_file_path, check.names=FALSE)
   
-  p <- ggplot(data1,aes(x=DATE_OF_INTEREST,y=CASE_COUNT_7DAY_AVG))+
-    geom_line(color="blue") +
-    xlab("Date") +
-    ylab("COVID Cases Count") +
-    theme_bw()
+  vic_file ='VIC_SEX_F.csv'
+  vic_file_path = paste(dir_path, vic_file, sep="")
+  crime_vic_F <- read.csv(vic_file_path, check.names=FALSE)
   
-  p1 <- p +
-    ylim(0,50000)+
-    theme(panel.grid.major=element_blank(),
-          panel.grid.minor=element_blank(),
-          plot.background=element_blank(),
-          panel.background=element_blank(),
-          legend.position="top")
+  vic_file ='VIC_SEX_D.csv'
+  vic_file_path = paste(dir_path, vic_file, sep="")
+  crime_vic_D <- read.csv(vic_file_path, check.names=FALSE)
   
-  p2_1 <- ggplot(data2, aes(x = `Record Create Date`, y = count)) + 
-    geom_line(color="#69b3a2")
+  vic_file ='VIC_SEX_E.csv'
+  vic_file_path = paste(dir_path, vic_file, sep="")
+  crime_vic_E <- read.csv(vic_file_path, check.names=FALSE)
   
-  p2 <- p2_1+
-    ylim(1,max(data2$count))+
-    theme(panel.grid.major=element_blank(),
-          panel.grid.minor=element_blank(),
-          plot.background=element_blank(),
-          panel.background=element_blank(),
-          axis.text.x=element_blank(),
-          axis.title.x =element_blank(),
-          axis.title.y =element_blank())%+replace% 
-    theme(panel.background = element_rect(fill = NA))
+  vic_file ='VIC_AGE_GROUP_<18.csv'
+  vic_file_path = paste(dir_path, vic_file, sep="")
+  crime_vic_18 <- read.csv(vic_file_path, check.names=FALSE)
   
-  # gtable
-  g1 <- ggplot_gtable(ggplot_build(p1))
-  g2 <- ggplot_gtable(ggplot_build(p2))
+  vic_file ='VIC_AGE_GROUP_18-24.csv'
+  vic_file_path = paste(dir_path, vic_file, sep="")
+  crime_vic_24 <- read.csv(vic_file_path, check.names=FALSE)
   
-  # overlap
-  pp <- c(subset(g1$layout, name == "panel", se = t:r))
-  g <- gtable_add_grob(g1, g2$grobs[[which(g2$layout$name == "panel")]], 
-                       pp$t,pp$l, pp$b, pp$l)
-  grid.newpage()
+  vic_file ='VIC_AGE_GROUP_25-44.csv'
+  vic_file_path = paste(dir_path, vic_file, sep="")
+  crime_vic_44 <- read.csv(vic_file_path, check.names=FALSE)
   
+  vic_file ='VIC_AGE_GROUP_45-64.csv'
+  vic_file_path = paste(dir_path, vic_file, sep="")
+  crime_vic_64 <- read.csv(vic_file_path, check.names=FALSE)
   
-  #axis tweaks
-  ia <- which(g2$layout$name == "axis-l")
-  ga <- g2$grobs[[ia]]
-  ax <- ga$children[[2]]
-  ax$widths <- rev(ax$widths)
-  ax$grobs <- rev(ax$grobs)
-  ax$grobs[[1]]$x <- ax$grobs[[1]]$x - unit(1, "npc") + unit(0.15, "cm")
-  g <- gtable_add_cols(g, g2$widths[g2$layout[ia, ]$l], length(g$widths))
-  g <- gtable_add_grob(g, ax, pp$t, length(g$widths) - 1, pp$b)
+  vic_file ='VIC_AGE_GROUP_65+.csv'
+  vic_file_path = paste(dir_path, vic_file, sep="")
+  crime_vic_65 <- read.csv(vic_file_path, check.names=FALSE)
   
-  grid.newpage() 
-  grid.draw(g)
+  vic_file ='VIC_RACE_ASIAN_PACIFIC_ISLANDER.csv'
+  vic_file_path = paste(dir_path, vic_file, sep="")
+  crime_vic_asian <- read.csv(vic_file_path, check.names=FALSE)
   
+  vic_file ='VIC_RACE_BLACK HISPANIC.csv'
+  vic_file_path = paste(dir_path, vic_file, sep="")
+  crime_vic_black_his <- read.csv(vic_file_path, check.names=FALSE)
+  
+  vic_file ='VIC_RACE_BLACK.csv'
+  vic_file_path = paste(dir_path, vic_file, sep="")
+  crime_vic_black <- read.csv(vic_file_path, check.names=FALSE)
+  
+  vic_file ='VIC_RACE_native_american.csv'
+  vic_file_path = paste(dir_path, vic_file, sep="")
+  crime_vic_native <- read.csv(vic_file_path, check.names=FALSE)
+  
+  vic_file ='VIC_RACE_WHITE HISPANIC.csv'
+  vic_file_path = paste(dir_path, vic_file, sep="")
+  crime_vic_white_his <- read.csv(vic_file_path, check.names=FALSE)
+  
+  vic_file ='VIC_RACE_WHITE.csv'
+  vic_file_path = paste(dir_path, vic_file, sep="")
+  crime_vic_white <- read.csv(vic_file_path, check.names=FALSE)
+
+}else
+{
+  stop("Select Data Source: local or Remote")
 }
 
 
 
+# merge hate crime df and gis df
+hc_gis = merge(x = aoi_boundary_NYC, y = hc_all_time_summarized, by = "boro_name", all.x = TRUE)
+hc_pre_covid_gis = merge(x = aoi_boundary_NYC, y = hc_pre_covid_summarized, by = "boro_name", all.x = TRUE)
+hc_since_covid_gis = merge(x = aoi_boundary_NYC, y = hc_since_covid_summarized, by = "boro_name", all.x = TRUE)
+print('*******HERE3******')
+# Combination function 1
+combine1 <- function(data1,category){
+  data2 <- Hate_Crimes[Hate_Crimes$`Bias Motive Description` == category, ] %>%
+    select(`Full Complaint ID`, `Record Create Date`) %>%
+    group_by(`Record Create Date`) %>%
+    summarise(count = n_distinct(`Full Complaint ID`))
+  
+  ggplot() + 
+    geom_line(data = data1, aes(x = DATE_OF_INTEREST, y = CASE_COUNT_7DAY_AVG, color="COVID")) + 
+    geom_line(data = data2, aes(x=`Record Create Date`, y=(count-1)*10000, color="Crime")) +
+    scale_y_continuous(name = "COVID Cases 7day Average", sec.axis = sec_axis(~./10000, name = "Crime Cases")) +
+    xlab("Date") +
+    theme(axis.title.y = element_text(color = "red", size = 12),
+          axis.title.y.right = element_text(color = "#39c3c2", size = 12)) +
+    ggtitle("COVID Cases vs Crime Cases")
+}
 
+# Combination function 2
+combine2 <- function(data1,data2){
+  ggplot() + 
+    geom_line(data = data1, aes(x = DATE_OF_INTEREST, y = CASE_COUNT_7DAY_AVG, color="COVID")) + 
+    geom_line(data = data2, aes(x=Date, y=(Visits)*2, color="Crime")) +
+    scale_y_continuous(name = "COVID Cases 7day Average", sec.axis = sec_axis(~./2, name = "Crime Cases")) +
+    xlab("Date") + 
+    theme(axis.title.y = element_text(color = "red", size = 12),
+          axis.title.y.right = element_text(color = "#39c3c2", size = 12)) +
+    ggtitle("COVID Cases vs Crime Cases")
+}
+
+# Combination function 3
+combine3 <- function(data1,data2){
+
+  data2$CMPLNT_FR_DT =  as.Date(data2$CMPLNT_FR_DT, format = "%Y-%m-%d")
+  
+  ggplot() + 
+    geom_line(data = data1, aes(x = DATE_OF_INTEREST, y = CASE_COUNT_7DAY_AVG, color="COVID")) + 
+    geom_line(data = data2, aes(x=CMPLNT_FR_DT, y=(d7_rollavg)*10, color="Crime")) +
+    scale_y_continuous(name = "COVID Cases 7day Average", sec.axis = sec_axis(~./10, name = "Crime Cases"),limits=c(0,7500)) +
+    xlab("Date") + 
+    theme(axis.title.y = element_text(color = "red", size = 12),
+          axis.title.y.right = element_text(color = "#39c3c2", size = 12)) +
+    ggtitle("COVID Cases vs Crime Cases")
+}
+
+# Category choice selector
+
+selector <- function(category){
+  if (category=="VIC_AGE_GROUP"){
+    return(
+      c('<18','18-24','25-44','45-64','65+')
+    )
+  }
+  if (category=="VIC_RACE"){
+    return(
+      c('BLACK','BLACK HISPANIC',
+        'WHITE HISPANIC',
+        'WHITE',
+        'ASIAN / PACIFIC ISLANDER',
+        'AMERICAN INDIAN/ALASKAN NATIVE'
+      )
+      )
+  }
+  if (category=="VIC_SEX"){
+    return(
+      c('M', 'F', 'E', 'D')
+      )
+  }
+}
