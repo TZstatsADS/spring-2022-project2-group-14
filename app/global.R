@@ -177,11 +177,41 @@ domestic_V$d7_rollavg = roll_mean(domestic_V$Visits, n = 7, align = "right", fil
 
 ## Import crime victims dataset
 
-if (data_source=='local')
+if (data_source=='remote')
 {
-  vic_link <- 'https://docs.google.com/spreadsheets/d/1gjSRHR-p2wYBwAXKx2JiAYWL5KKEdt-l4UtZ4CBf6Bg/edit?usp=sharing'
-  crime_vic <- read_sheet(vic_link)
-}else if (data_source=='remote')
+
+  vic_link <- 'https://docs.google.com/spreadsheets/d/1ZKc6iCPhGfc2mSgNRRCwnWZQurR5VMqEBdhXOgrdK7Q/edit?usp=sharing'
+  crime_vic_M <- read_sheet(vic_link)
+  vic_link <- 'https://docs.google.com/spreadsheets/d/1Cseydumt4CCHtdTUS4Ta8_Tuca9dvN32f8tQIgN26zo/edit?usp=sharing'
+  crime_vic_F <- read_sheet(vic_link)
+  vic_link <- 'https://docs.google.com/spreadsheets/d/1lyPYz76HSF_pMYZWNxNTEG_hxzn8ScpVOkP3hcy8xo4/edit?usp=sharing'
+  crime_vic_D <- read_sheet(vic_link)
+  vic_link <- 'https://docs.google.com/spreadsheets/d/1hBNf8GKoowmMCi5Lq3Dt3psZQ3CPyw6mPIDCjlX1lak/edit?usp=sharing'
+  crime_vic_E <- read_sheet(vic_link)
+  vic_link <- 'https://docs.google.com/spreadsheets/d/1vqR3SrZJIjd973T940BD-ijtNySDFwpsbAuCM6m5fPw/edit?usp=sharing'
+  crime_vic_18 <- read_sheet(vic_link)
+  vic_link <- 'https://docs.google.com/spreadsheets/d/1SnBfcvErFUwvyj6DY0G9NDveAzOqW9OsGqFzF_Eqha0/edit?usp=sharing'
+  crime_vic_24 <- read_sheet(vic_link)
+  vic_link <- 'https://docs.google.com/spreadsheets/d/1IG8oJY3ezJjs4pQU144x6Av1OBdlZ9qpKeHtQCtXMkk/edit?usp=sharing'
+  crime_vic_44 <- read_sheet(vic_link)
+  vic_link <- 'https://docs.google.com/spreadsheets/d/1bAcKrdISknm2e9_ZvhcAWsrHEYPmeGj0eWMPuYYafXY/edit?usp=sharing'
+  crime_vic_64 <- read_sheet(vic_link)
+  vic_link <- 'https://docs.google.com/spreadsheets/d/1abtH6_TSwTWanVbAmMM6yK7roHS5gqQap1hCiso_iYM/edit?usp=sharing'
+  crime_vic_65 <- read_sheet(vic_link)
+  vic_link <- 'https://docs.google.com/spreadsheets/d/1sMtaj-ymYqQc1zPcnStEn9Se0FOpS3-70ULvBC-p9MY/edit?usp=sharing'
+  crime_vic_asian <- read_sheet(vic_link)
+  vic_link <- 'https://docs.google.com/spreadsheets/d/1OtI-Pk6UkHGTORdacVNcoWOiqlxwNkYeRT3_uzguEIs/edit?usp=sharing'
+  crime_vic_black_his <- read_sheet(vic_link)
+  vic_link <- 'https://docs.google.com/spreadsheets/d/14cndmavdWwLk6gZ6w6oFKL1gfPs9wVsXE30D2tLj8Pc/edit?usp=sharing'
+  crime_vic_black <- read_sheet(vic_link)
+  vic_link <- 'https://docs.google.com/spreadsheets/d/1EKngLl45QzC2NYS7E5UQziuqZiSoefIQou5OiarSyHQ/edit?usp=sharing'
+  crime_vic_native <- read_sheet(vic_link)
+  vic_link <- 'https://docs.google.com/spreadsheets/d/1lk8LF7IWys7nVKh9S3pcsuyJ8OU3BY9XsGd0RWpJrd4/edit?usp=sharing'
+  crime_vic_white_his <- read_sheet(vic_link)
+  vic_link <- 'https://docs.google.com/spreadsheets/d/1T4B2pMLBhcKP0GPwbvhFF8lWgKj1jhr74gs9zHl2rNQ/edit?usp=sharing'
+  crime_vic_white <- read_sheet(vic_link)
+  
+}else if (data_source=='local')
 {
   dir_path = '/Users/joelmugyenyi/Desktop/Classes_Spring_22/APPLIED_DATA_SCIENCE/projects/project2/datasets/crime_complaints/'
   vic_file ='VIC_SEX_M.csv'
@@ -255,7 +285,7 @@ if (data_source=='local')
 hc_gis = merge(x = aoi_boundary_NYC, y = hc_all_time_summarized, by = "boro_name", all.x = TRUE)
 hc_pre_covid_gis = merge(x = aoi_boundary_NYC, y = hc_pre_covid_summarized, by = "boro_name", all.x = TRUE)
 hc_since_covid_gis = merge(x = aoi_boundary_NYC, y = hc_since_covid_summarized, by = "boro_name", all.x = TRUE)
-print('*******HERE3******')
+
 # Combination function 1
 combine1 <- function(data1,category){
   data2 <- Hate_Crimes[Hate_Crimes$`Bias Motive Description` == category, ] %>%
@@ -289,6 +319,7 @@ combine2 <- function(data1,data2){
 combine3 <- function(data1,data2){
 
   data2$CMPLNT_FR_DT =  as.Date(data2$CMPLNT_FR_DT, format = "%Y-%m-%d")
+  data2$d7_rollavg = as.numeric(unlist(data2$d7_rollavg))
   
   ggplot() + 
     geom_line(data = data1, aes(x = DATE_OF_INTEREST, y = CASE_COUNT_7DAY_AVG, color="COVID")) + 

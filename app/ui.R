@@ -19,21 +19,31 @@ ui <- dashboardPage(skin = "purple",
 
       # Home tab content
       tabItem(tabName = "home",
-              # h2("How Covid_19 impacted crime in New York City"),
-              # h4("By Joel Mugyenyi, Rishav Agarwal, Shanyue Zeng, Lichun He"),
-              h4(" dataset posted on 03.12.2020, by Simon De-Ville, Virginia Stovin, Christian Berretta, JOERG WERDIN, Simon Poë"),
+
+              h2("How Covid_19 impacted crime in New York City"),
+              h4("By Joel Mugyenyi, Rishav Agarwal, Shanyue Zeng, Lichun He"),
+           
+              h5("Over the past year, there have been multiple stories about surging crimes in New York City. In this app, we explore the data and examine the relationships between the multiple covid waves New York City has faced and that has impacted crimes committed"),
+              
+              hr(),
+              
+              h5("We focus on the following crime subcategories:"),
+              tags$li("Hate Crimes"),
+              img(src = 'https://i.insider.com/60908fcbf22c6b00185db650?width=2000&format=jpeg&auto=webp', height = '170px', width = '350px'),
+              hr(),
+              tags$li("Domestic Violence"),
+              img(src = 'https://assets.losspreventionmedia.com/uploads/2019/11/Women-domestic-violence-1280x720.jpg', height = '170px', width = '350px'),
+              hr(),
+              tags$li("Victim Subcategories"),
+              img(src = 'https://www.canada.ca/content/dam/themes/policing/victims/20140318.jpg', height = '170px', width = '350px'),
+             
+              hr(),
               a(
-                href="https://figshare.shef.ac.uk/articles/dataset/Hadfield_Green_Roof_5-year_Dataset/11876736", 
+                href="https://drive.google.com/drive/folders/13pINm4bOA40jCpoVpQxSu4lqoXUCdYcb?usp=sharing", 
                 "Click here for data!"
               ),
-              h5("Data collected as part of the EU funded 'Collaborative research and development of green roof system technology' project from the Sheffield, UK, green roof testbeds."),
-              h5("Data includes 5 years of:"),
-              tags$li("Rainfall data (1-minute resolution)"),
-              tags$li("Green roof runoff data for 9 roof configurations (1-minute resolution)"),
-              tags$li("Soil moisture content at 3 depths for 4 roof configurations (5-minute resolution)"),
-              tags$li("Climate data sufficient to calculate FAO-56 Penman-Monteith (1-hour resolution)"),
-              h5("Due to difficulties in monitoring testbed runoff, there are occasions where runoff data is considered invalid. A separate data-file indicates individual storm events where runoff data is considered to be valid."),
-              a(href="https://github.com/yld-weng/hadfield-green-roof", "Click here for the GitHub repo!")
+              hr(),
+              a(href="https://github.com/TZstatsADS/spring-2022-project2-group-14", "Click here for the GitHub repo!")
       ),
       
       #------------------Covid & Crime----------------------------
