@@ -2,6 +2,8 @@ if (!require("shinydashboard")) {
   install.packages("shinydashboard")
   library(shinydashboard)
 }
+
+
 ui <- dashboardPage(skin = "purple",
                     title="Covid_19 and Crime in New York City",
                     dashboardHeader(title=span("Covid_19 and Crime in NYC",style="font-size: 16px")),
@@ -11,7 +13,9 @@ ui <- dashboardPage(skin = "purple",
     menuItem("Covid-19 Cases & Hate Crimes", tabName = "c_19_hc"),
     menuItem("Covid-19 Cases & Domestic Violence", tabName = "c_19_dv"),
     menuItem("Covid-19 Cases & Crime Victims", tabName = "c_19_crime_vics"),
-    menuItem("Map", tabName = "map")
+    menuItem("Hate Crimes based on Borough", tabName = "map"),
+    menuItem("Complaints in Manhattan", tabName = "complaints"),
+    menuItem("Hate Crimes based on County", tabName = "hatecrime")
   )),
   
   
@@ -23,7 +27,7 @@ ui <- dashboardPage(skin = "purple",
       tabItem(tabName = "home",
 
               h2("How Covid_19 impacted crime in New York City"),
-              h4("By Joel Mugyenyi, Rishav Agarwal, Shanyue Zeng, Lichun He"),
+              h4("By Joel Mugyenyi, Rishav Agarwal, Shanyue Zeng, Lichun He, Ananya Iyer"),
            
               h5("Over the past year, there have been multiple stories about surging crimes in New York City. In this app, we explore the data and examine the relationships between the multiple covid waves New York City has faced and that has impacted crimes committed"),
               
@@ -159,8 +163,29 @@ ui <- dashboardPage(skin = "purple",
           )
         )
       )
-      )
       
+      ),
+      
+      tabItem(
+        tabName = "complaints", fluidPage(
+          titlePanel("Complaints registered in Manhattan"),
+          
+          mainPanel(
+            plotOutput("hc")
+          )
+          
+        )
+      ),
+      
+      tabItem(tabName = "hatecrime", fluidPage(
+        titlePanel("Hate crimes based on County"),
+        mainPanel(
+          
+          leafletOutput("mclust") 
+        )
+      )
+      )
+    
     )
   )
 )
