@@ -539,11 +539,11 @@ plot_line <- function(selected_dateS, selected_dateE,
   
   # Covid19
   data2 <- covid_19_line %>%
-    dplyr::select(CASE_COUNT, DATE_OF_INTEREST) %>%
+    dplyr::select(CASE_COUNT_7DAY_AVG, DATE_OF_INTEREST) %>%
     mutate(date = format(as.Date(DATE_OF_INTEREST, format = "%m/%d/%Y"), "%Y/%m")) %>% 
     mutate(date = paste(date,"/01", sep = "")) %>%
     group_by(date) %>%
-    summarise(n = sum(CASE_COUNT))
+    summarise(n = sum(CASE_COUNT_7DAY_AVG))
   
   c1 <- data2 %>%
     ggplot(aes(as.Date(date), n)) +
@@ -559,7 +559,7 @@ plot_line <- function(selected_dateS, selected_dateE,
   
   # linechart function
   linechart <- function(data1, data2){
-    p <- ggplot(data1,aes(x=DATE_OF_INTEREST,y=CASE_COUNT))+
+    p <- ggplot(data1,aes(x=DATE_OF_INTEREST,y=CASE_COUNT_7DAY_AVG))+
       geom_line(color="blue") +
       geom_vline(xintercept = as.Date("2020-02-01"), col='red') + 
       xlab("Date") +
@@ -682,10 +682,10 @@ plot_line_table <- function(selected_dateS, selected_dateE,
            "Hate Crime Cases during this time period" = count)
   
   tableCovid <- covid_19_line %>%
-    dplyr::select(CASE_COUNT, DATE_OF_INTEREST) %>%
+    dplyr::select(CASE_COUNT_7DAY_AVG, DATE_OF_INTEREST) %>%
     mutate(date = format(as.Date(DATE_OF_INTEREST, format = "%m/%d/%Y"), "%Y/%m")) %>% 
     group_by(date) %>%
-    summarise("Covid Cases during this time period" = sum(CASE_COUNT))
+    summarise("Covid Cases during this time period" = sum(CASE_COUNT_7DAY_AVG))
   
   if (selected_topic == "Both"){
     print(left_join(tab1, tab2))
