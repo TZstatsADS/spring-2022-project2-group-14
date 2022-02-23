@@ -50,7 +50,7 @@ if (!require("RcppRoll")) {
 }
 
 # Select data source
-data_source = 'remote'
+data_source = 'local'
 
 #### Deactivate googlesheets authentication 
 googlesheets4::gs4_deauth()
