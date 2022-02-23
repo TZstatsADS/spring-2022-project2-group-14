@@ -1,0 +1,14 @@
+name: Covid_crime_5
+title: Covid_crime_5
+username:
+account: jmugyenyi
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5701065
+bundleId: 5606793
+url: https://jmugyenyi.shinyapps.io/Covid_crime_5/
+when: 1645559129.01249
+lastSyncTime: 1645559129.01253
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: README.md
