@@ -3,3 +3,5 @@
 
 The App directory contains the app files for the Shiny App (i.e., ui.R and server.R).
  - ui.R and server.R are two key components for the Shiny App 
+
+App directory contains a Borough boundaries dataset that is used by the Map tab in the application
