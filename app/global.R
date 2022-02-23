@@ -49,6 +49,7 @@ if (!require("RcppRoll")) {
   library(RcppRoll)
 }
 
+# Select data source
 data_source = 'remote'
 
 #### Deactivate googlesheets authentication 
@@ -213,7 +214,7 @@ if (data_source=='remote')
   
 }else if (data_source=='local')
 {
-  dir_path = '/Users/joelmugyenyi/Desktop/Classes_Spring_22/APPLIED_DATA_SCIENCE/projects/project2/datasets/crime_complaints/'
+  dir_path = '../output/crime_complaints/'
   vic_file ='VIC_SEX_M.csv'
   vic_file_path = paste(dir_path, vic_file, sep="")
   crime_vic_M <- read.csv(vic_file_path, check.names=FALSE)
