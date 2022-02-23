@@ -1,5 +1,7 @@
-library(shinydashboard)
-
+if (!require("shinydashboard")) {
+  install.packages("shinydashboard")
+  library(shinydashboard)
+}
 ui <- dashboardPage(skin = "purple",
                     title="Covid_19 and Crime in New York City",
                     dashboardHeader(title=span("Covid_19 and Crime in NYC",style="font-size: 16px")),
