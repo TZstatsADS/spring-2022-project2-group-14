@@ -1,7 +1,7 @@
 # Project 2: Shiny App Development
 
 ## Analyzing Crime Data in New York pre and post-Covid19 
-## Shiny App Link: https://rishav.shinyapps.io/Covid19_HateCrime/
+### Shiny App Link: https://rishav.shinyapps.io/Covid19_HateCrime/
 Term: Spring 2022
 
 + Team #14
