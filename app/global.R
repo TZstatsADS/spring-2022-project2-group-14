@@ -8,6 +8,10 @@ if (!require("repr")) {
   install.packages("repr")
   library(repr)
 }
+if (!require("vroom")) {
+  install.packages("vroom")
+  library(vroom)
+}
 if (!require("dplyr")) {
   install.packages("dplyr")
   library(dplyr)
@@ -48,9 +52,52 @@ if (!require("RcppRoll")) {
   install.packages("RcppRoll")
   library(RcppRoll)
 }
+if (!require("tigris")) {
+  install.packages("tigris")
+  library(tigris)
+}
+if (!require("sp")) {
+  install.packages("sp")
+  library(sp)
+}
+if (!require("ggmap")) {
+  install.packages("ggmap")
+  library(ggmap)
+}
+if (!require("maptools")) {
+  install.packages("maptools")
+  library(maptools)
+}
+if (!require("broom")) {
+  install.packages("broom")
+  library(broom)
+}
+if (!require("httr")) {
+  install.packages("httr")
+  library(httr)
+}
+if (!require("rgdal")) {
+  install.packages("rgdal")
+  library(rgdal)
+}
+if (!require("ggthemes")) {
+  install.packages("ggthemes")
+  library(ggthemes)
+}
+
+if (!require("htmlwidgets")) {
+  install.packages("htmlwidgets")
+  library(htmlwidgets)
+}
+
+
+if (!require("tidyr")) {
+  install.packages("tidyr")
+  library(tidyr)
+}
 
 # Select data source
-data_source = 'local'
+data_source = 'remote'
 
 #### Deactivate googlesheets authentication 
 googlesheets4::gs4_deauth()
@@ -231,7 +278,7 @@ if (data_source=='remote')
   vic_file_path = paste(dir_path, vic_file, sep="")
   crime_vic_E <- read.csv(vic_file_path, check.names=FALSE)
   
-  vic_file ='VIC_AGE_GROUP_<18.csv'
+  vic_file ='VIC_AGE_GROUP_18.csv'
   vic_file_path = paste(dir_path, vic_file, sep="")
   crime_vic_18 <- read.csv(vic_file_path, check.names=FALSE)
   
@@ -279,8 +326,25 @@ if (data_source=='remote')
 {
   stop("Select Data Source: local or Remote")
 }
+# '''
+# if (data_source==)
+# {
+#  NYPDComplaint <- read_sheet(nypdComplaint_link)
+# }else if (data_source==local)
+# {
+#   dir_path = ../output/crime_complaints/
+#   NYPDComplaint_file_name =NYPDComplaint_Processed.csv
+#   NYPDComplaint_file_path = paste(dir_path, NYPDComplaint_file_name, sep="")
+#   NYPDComplaint <- read.csv(NYPDComplaint_file_path, check.names=FALSE)
+# }else
+# {
+#   stop("Select Data Source: local or Remote")
+# }'''
 
-
+dir_path = 'www/'
+NYPDComplaint_file_name ='NYPDComplaint_Processed.csv'
+NYPDComplaint_file_path = paste(dir_path, NYPDComplaint_file_name, sep="")
+NYPDComplaint <- read.csv(NYPDComplaint_file_path, check.names=FALSE)
 
 # merge hate crime df and gis df
 hc_gis = merge(x = aoi_boundary_NYC, y = hc_all_time_summarized, by = "boro_name", all.x = TRUE)
@@ -331,6 +395,69 @@ combine3 <- function(data1,data2){
           axis.title.y.right = element_text(color = "#39c3c2", size = 12)) +
     ggtitle("COVID Cases vs Crime Cases")
 }
+
+combine4 <- function(data1){
+  
+  data_hate <- data1
+  county <- data_hate$County
+  lat <- NA
+  lat <- ifelse(county=="BRONX", 40.844782, lat)
+  lat <- ifelse(county=="RICHMOND", 40.5834379, lat)
+  lat <- ifelse(county=="NEW YORK", 40.730610, lat)
+  lat <- ifelse(county=="QUEENS", 40.742054, lat)
+  lat <- ifelse(county=="KINGS", 40.819824, lat)
+  long <- NA
+  long <- ifelse(county=="BRONX", -73.864827, long)
+  long <- ifelse(county=="RICHMOND", -74.1495875, long)
+  long <- ifelse(county=="NEW YORK", -73.935242, long)
+  long <- ifelse(county=="QUEENS", -73.769417, long)
+  long <- ifelse(county=="KINGS", -73.735130, long)
+  data_hate$lat <- lat
+  data_hate$long <- long
+  # Plot
+  m <- leaflet(data_hate) %>% 
+    addTiles() # add the background map 
+  library(RColorBrewer)
+  pal = colorFactor("Set1", domain = data_hate$County) # Grab a palette
+  color_offsel1 = pal(data_hate$County)
+  mclust <- m %>% addCircleMarkers(color = color_offsel1, 
+                                   popup = content,
+                                   clusterOptions = markerClusterOptions()) %>%
+    addLegend(pal = pal, values = ~data_hate$County, title = "Counties")
+  mclust
+}
+
+combine5 <- function(data1){
+  
+  register_google(key = "AIzaSyCVWbGYizBSs2nZktIsO-GvOM3eaWSaizg", write= TRUE)
+  map_Manhattan_st <- get_map("New York",
+                              zoom = 12,
+                              source = "stamen",
+                              maptype = "toner-background")
+  
+  ggmap(map_Manhattan_st)
+  
+  data1 <- data1
+  colnames(data1)
+  data2 <- data1[,c(1,2,3)]
+  colnames(data2)
+  data3 <- na.omit(data2)
+  data3.df <- as.data.frame(data3)
+  data3.df$RPT_DT <- paste(substr(data3.df$RPT_DT , 1, 3),substr(data3.df$RPT_DT , 7, 10))
+  
+  g <- ggmap(map_Manhattan_st) + theme_map()
+  g + geom_point(data=data3.df, aes(x=Longitude,y=Latitude),
+                 size=0.3, alpha=0.3, color="red")
+  
+  
+  hc=g + stat_density2d(data = data3.df, geom = "polygon",
+                        aes(x = Longitude, y = Latitude, fill=..level..,alpha=..level..)) + 
+    scale_fill_gradient(low = "yellow", high = "red") + theme_map()
+  
+  hc
+  
+}
+
 
 # Category choice selector
 

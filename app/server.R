@@ -187,4 +187,20 @@ server <- function(input, output, session) {
     combine3(COVID_Whole_Cases,data2)
     
   })
+  
+  output$mclust=renderLeaflet({
+    data1= Hate_Crimes
+    combine4(data1)
+  })
+  
+  output$hc=renderPlot({ 
+    data1 <- NYPDComplaint
+    combine5(data1)
+    
+  })
+  
+  
+  
+  
+  
 }
