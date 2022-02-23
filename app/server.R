@@ -1,4 +1,3 @@
-
 server <- function(input, output, session) {
   
   
@@ -160,9 +159,9 @@ server <- function(input, output, session) {
         crime_vic_black
       )
     }
-  
+    
   })
-
+  
   observe({
     updateSelectInput(session,
                       "selected_vic_type",
@@ -199,6 +198,18 @@ server <- function(input, output, session) {
     
   })
   
+  # Render the line chart
+  output$line_plot <- renderPlot({
+    plot_line(input$selected_dateS, input$selected_dateE,
+              input$selected_county, input$selected_motive, input$selected_topic)
+  })
+  
+  # Render the table
+  
+  output$plot_line_table <- renderTable({
+    plot_line_table(input$selected_dateS, input$selected_dateE,
+                    input$selected_county, input$selected_motive, input$selected_topic)
+  })
   
   
   
