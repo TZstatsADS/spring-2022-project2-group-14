@@ -1,6 +1,5 @@
 server <- function(input, output, session) {
-  
-  
+  options(shiny.maxRequestSize=60*1024^2)
   motive <- reactive({
     if ( "ANTI-JEWISH" %in% input$motive){
       return( 
